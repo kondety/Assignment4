@@ -67,6 +67,6 @@ names(dataTable)<-gsub("BodyBody", "Body", names(dataTable))
 # Names after
 head(str(dataTable),6)
 
-## step 4: creates a second, independent tidy data set with the average of each variable for each activity and each subject.
+## step 5: creates a second, independent tidy data set with the average of each variable for each activity and each subject.
 
 write.table(dataTable, "TidyData.txt", row.names = FALSE)

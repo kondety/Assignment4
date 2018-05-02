@@ -25,8 +25,9 @@ colnames(xtrain) <- "x1"
 colnames(ytrain) <- "y1"
 
 # add column name for lable files
-colnames(ytrain) <- "activity"
-colnames(xtest) <- "activity"
+activity_labels <- read.table("./activity_labels", sep = ",", header = TRUE)
+features <- read.table("./tidydata", sep = ",", header = TRUE)
+colnames(activity_labels) <- c("v1", "v2")
 
 #combine files into one data set
 traindata <- cbind(subjecttrain, xtrain, ytrain)
@@ -36,37 +37,38 @@ cn <- colnames(totaldata)
 
 ##step 2: Extracts only the measurements on the mean and standard deviation for each measurement
 #determine which columns contain "mean() or "std()"
-mean_deviation <- totaldata[,grepl("mean|std|subject|y1", colnames(totaldata))]
-activity <- read.table("activity_labels.txt", header = FALSE, sep = " ")
-colnames(activity) <- c("activityid", "activity1")
-data <- merge(x = mean_deviation, y = activity, by = "activityid")
-unique(data[,c("activity1")])
+mean_deviation <- grepl("mean|std|subject|y1", colnames(totaldata), ignore.case = TRUE)
+requiredColumns <- c(mean_deviation, 563,564)
+dim(requiredColumns)
+extractedData <- totaldata[,requiredColumns]
+dim(extractedData)
 
 ##step3: Uses descriptive activity names to name the activities in the data set
 
-# enter name of activity into dataTable
-dataTable <- merge(activityLabels, dataTable , by="activityNum", all.x=TRUE)
-dataTable$activityName <- as.character(dataTable$activityName)
+extractedData$activityName <- as.character(extractedData$activityName)
+for(i in 1:6){
+  extractedData$activityName[extractedData$activityName ==i] <- as.character(activity_labels[i,2])
+  
+}
 
-# create dataTable with variable means sorted by subject and Activity
-dataTable$activityName <- as.character(dataTable$activityName)
-dataAggr<- aggregate(. ~ subject - activityName, data = dataTable, mean) 
-dataTable<- tbl_df(arrange(dataAggr,subject,activityName))
-
+extractedData$activityName <- as.factor(extractedData$activityName)
 
 ##step 4:Appropriately labels the data set with descriptive variable names.
-head(str(dataTable),2)
-names(dataTable)<-gsub("std()", "SD", names(dataTable))
-names(dataTable)<-gsub("mean()", "MEAN", names(dataTable))
-names(dataTable)<-gsub("^t", "time", names(dataTable))
-names(dataTable)<-gsub("^f", "frequency", names(dataTable))
-names(dataTable)<-gsub("Acc", "Accelerometer", names(dataTable))
-names(dataTable)<-gsub("Gyro", "Gyroscope", names(dataTable))
-names(dataTable)<-gsub("Mag", "Magnitude", names(dataTable))
-names(dataTable)<-gsub("BodyBody", "Body", names(dataTable))
+head(str(extractedData),2)
+names(extractedData)<-gsub("std()", "SD", names(extractedData))
+names(extractedData)<-gsub("mean()", "MEAN", names(extractedData))
+names(extractedData)<-gsub("^t", "time", names(extractedData))
+names(extractedData)<-gsub("^f", "frequency", names(extractedData))
+names(extractedData)<-gsub("Acc", "Accelerometer", names(extractedData))
+names(extractedData)<-gsub("Gyro", "Gyroscope", names(extractedData))
+names(extractedData)<-gsub("Mag", "Magnitude", names(extractedData))
+names(extractedData)<-gsub("BodyBody", "Body", names(extractedData))
 # Names after
-head(str(dataTable),6)
+head(str(extractedData),6)
 
 ## step 5: creates a second, independent tidy data set with the average of each variable for each activity and each subject.
-
-write.table(dataTable, "TidyData.txt", row.names = FALSE)
+extractedData$Subject <- as.factor(extractedData$subject)
+extractedData <- data.table(extractedData)
+tidyData <- aggregate(. ~Subject + activityname, extractedData, mean)
+tidyData <- tidyData[orderr(tidyData$Subject, tidyData$activityName),]
+write.table(tidyData, file = "tidydataset.txt", row.names = FALSE)

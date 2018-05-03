@@ -40,6 +40,8 @@ cn <- colnames(totaldata)
 mean_deviation <- grepl("mean|std|subject|y1", colnames(totaldata), ignore.case = TRUE)
 requiredColumns <- c(mean_deviation, 563,564)
 dim(requiredColumns)
+extractedData <- totaldata[,requiredColumns]
+dim(extractedData)
 
 ##step3: Uses descriptive activity names to name the activities in the data set
 

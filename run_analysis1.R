@@ -71,4 +71,8 @@ extractedData$Subject <- as.factor(extractedData$subject)
 extractedData <- data.table(extractedData)
 tidyData <- aggregate(. ~Subject + activityname, extractedData, mean)
 tidyData <- tidyData[orderr(tidyData$Subject, tidyData$activityName),]
+<<<<<<< HEAD
 write.table(tidyData, file = "tidydataset.txt", row.names = FALSE)
+=======
+write.table(tidyData, file = "tidydataset.txt", row.names = FALSE)
+>>>>>>> 9d2dd5e1537e28f79e590a9d6470902a28c7c594
